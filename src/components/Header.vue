@@ -9,7 +9,9 @@
         <ul class="flex flex-row mt-1">
           <!-- Navigation Links -->
           <li>
-            <a class="px-2 text-white" href="#">Login / Register</a>
+            <a class="px-2 text-white" href="#" @click.prevent="toggleAuthModal">
+              Login / Register
+            </a>
           </li>
           <li>
             <a class="px-2 text-white" href="#">Manage</a>
@@ -22,8 +24,20 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useStore } from '@/store/index'
+import { MutationType } from '@/store/mutations'
 
 export default defineComponent({
   name: "Header",
+  setup() {
+    const store = useStore();
+
+    // update state
+    const toggleAuthModal = (): void => {
+      store.commit(MutationType.ToggleAuthModal, !store.state.authModalShow)
+    }
+
+    return { toggleAuthModal }
+  }
 });
 </script>
