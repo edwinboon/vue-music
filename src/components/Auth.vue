@@ -145,7 +145,7 @@
             </button>
           </form>
           <!-- Registration Form -->
-          <vee-form v-show="tab === 'register'" :validation-schema="schema">
+          <vee-form v-show="tab === 'register'" :validation-schema="schema" @submit="register">
             <!-- Name -->
             <div class="mb-3">
               <label class="inline-block mb-2">Name</label>
@@ -171,8 +171,9 @@
             <!-- Email -->
             <div class="mb-3">
               <label class="inline-block mb-2">Email</label>
-              <input
+              <vee-field
                 type="email"
+                name="email"
                 class="
                   block
                   w-full
@@ -187,12 +188,14 @@
                 "
                 placeholder="Enter Email"
               />
+              <error-message class="text-red-600" name="email" />
             </div>
             <!-- Password -->
             <div class="mb-3">
               <label class="inline-block mb-2">Password</label>
-              <input
+              <vee-field
                 type="password"
+                name="password"
                 class="
                   block
                   w-full
@@ -207,12 +210,14 @@
                 "
                 placeholder="Password"
               />
+              <error-message class="text-red-600" name="password" />
             </div>
             <!-- Confirm Password -->
             <div class="mb-3">
               <label class="inline-block mb-2">Confirm Password</label>
-              <input
+              <vee-field
                 type="password"
+                name="confirm_password"
                 class="
                   block
                   w-full
@@ -227,14 +232,19 @@
                 "
                 placeholder="Confirm Password"
               />
+             <error-message class="text-red-600" name="confirm_password" />
             </div>
             <!-- TOS -->
             <div class="mb-3 pl-6">
-              <input
+              <vee-field
                 type="checkbox"
+                name="tos"
+                value="1"
                 class="w-4 h-4 float-left -ml-6 mt-1 rounded"
               />
               <label class="inline-block">Accept terms of service</label>
+              <br />
+              <error-message class="text-red-600" name="tos" />
             </div>
             <button
               type="submit"
@@ -271,14 +281,25 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const tab = ref<Tabs>('login');
-    const schema = ref<Schema>({ 
-      name: 'required',
-    })
+
+    // schema for form validation
+    const schema: Schema = { 
+      name: 'required|min:3|max:50|alphaSpaces',
+      email: 'required|min:3|max:100',
+      password: 'required|min:8',
+      confirm_password: 'confirmed:@password',
+      tos: 'required'
+    }
+
     const toggleModal = (): void =>
       store.commit(MutationType.ToggleAuthModal, !store.state.authModalShow);
     const authModalShow = computed(() => store.getters.authModalShow);
 
-    return { tab, toggleModal, authModalShow, schema};
+    const register = (values: Schema): void => {
+      console.log({values})
+    }
+
+    return { tab, toggleModal, authModalShow, schema, register };
   },
 });
 </script>
