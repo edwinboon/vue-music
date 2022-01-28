@@ -145,12 +145,13 @@
             </button>
           </form>
           <!-- Registration Form -->
-          <form v-show="tab === 'register'">
+          <vee-form v-show="tab === 'register'" :validation-schema="schema">
             <!-- Name -->
             <div class="mb-3">
               <label class="inline-block mb-2">Name</label>
-              <input
+              <vee-field
                 type="text"
+                name="name"
                 class="
                   block
                   w-full
@@ -165,6 +166,7 @@
                 "
                 placeholder="Enter Name"
               />
+              <error-message class="text-red-600" name="name" />
             </div>
             <!-- Email -->
             <div class="mb-3">
@@ -184,25 +186,6 @@
                   rounded
                 "
                 placeholder="Enter Email"
-              />
-            </div>
-            <!-- Age -->
-            <div class="mb-3">
-              <label class="inline-block mb-2">Age</label>
-              <input
-                type="number"
-                class="
-                  block
-                  w-full
-                  py-1.5
-                  px-3
-                  text-gray-800
-                  border border-gray-300
-                  transition
-                  duration-500
-                  focus:outline-none focus:border-black
-                  rounded
-                "
               />
             </div>
             <!-- Password -->
@@ -245,28 +228,6 @@
                 placeholder="Confirm Password"
               />
             </div>
-            <!-- Country -->
-            <div class="mb-3">
-              <label class="inline-block mb-2">Country</label>
-              <select
-                class="
-                  block
-                  w-full
-                  py-1.5
-                  px-3
-                  text-gray-800
-                  border border-gray-300
-                  transition
-                  duration-500
-                  focus:outline-none focus:border-black
-                  rounded
-                "
-              >
-                <option value="USA">USA</option>
-                <option value="Mexico">Mexico</option>
-                <option value="Germany">Germany</option>
-              </select>
-            </div>
             <!-- TOS -->
             <div class="mb-3 pl-6">
               <input
@@ -291,7 +252,7 @@
             >
               Submit
             </button>
-          </form>
+          </vee-form>
         </div>
       </div>
     </div>
@@ -301,20 +262,23 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "@/store/index";
-import { MutationType } from "@/store/mutations";
-
-type Tabs = "login" | "register";
+import { MutationType } from "@/types/Mutations";
+import { Tabs } from '@/types/Tabs'
+import { Schema } from '@/types/Schema'
 
 export default defineComponent({
   name: "Auth",
   setup() {
     const store = useStore();
-    const tab = ref<Tabs>("login");
+    const tab = ref<Tabs>('login');
+    const schema = ref<Schema>({ 
+      name: 'required',
+    })
     const toggleModal = (): void =>
       store.commit(MutationType.ToggleAuthModal, !store.state.authModalShow);
     const authModalShow = computed(() => store.getters.authModalShow);
 
-    return { tab, toggleModal, authModalShow };
+    return { tab, toggleModal, authModalShow, schema};
   },
 });
 </script>

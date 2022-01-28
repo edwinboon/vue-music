@@ -3,9 +3,12 @@ import {
   Store as VuexStore,
   CommitOptions,
 } from 'vuex'
-import { State, state } from './state'
-import { Mutations, mutations } from './mutations'
-import { Getters, getters } from './getters'
+import { state } from './state'
+import { mutations } from './mutations'
+import { getters } from './getters'
+import { State } from '@/types/State'
+import { Mutations } from '@/types/Mutations'
+import { Getters } from '@/types/Getters'
 
 export const store = createStore<State>({
   state,
