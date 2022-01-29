@@ -65,7 +65,7 @@
                 href="#"
                 :class="{
                   'hover:text-white text-white bg-blue-600': tab === 'login',
-                  'hover:text-blue-600': tab === 'register'
+                  'hover:text-blue-600': tab === 'register',
                 }"
                 @click.prevent="tab = 'login'"
                 >Login</a
@@ -77,7 +77,7 @@
                 href="#"
                 :class="{
                   'hover:text-white text-white bg-blue-600': tab === 'register',
-                  'hover:text-blue-600': tab === 'login'
+                  'hover:text-blue-600': tab === 'login',
                 }"
                 @click.prevent="tab = 'register'"
                 >Register</a
@@ -145,7 +145,11 @@
             </button>
           </form>
           <!-- Registration Form -->
-          <vee-form v-show="tab === 'register'" :validation-schema="schema" @submit="register">
+          <vee-form
+            v-show="tab === 'register'"
+            :validation-schema="schema"
+            @submit="register"
+          >
             <!-- Name -->
             <div class="mb-3">
               <label class="inline-block mb-2">Name</label>
@@ -193,24 +197,28 @@
             <!-- Password -->
             <div class="mb-3">
               <label class="inline-block mb-2">Password</label>
-              <vee-field
-                type="password"
-                name="password"
-                class="
-                  block
-                  w-full
-                  py-1.5
-                  px-3
-                  text-gray-800
-                  border border-gray-300
-                  transition
-                  duration-500
-                  focus:outline-none focus:border-black
-                  rounded
-                "
-                placeholder="Password"
-              />
-              <error-message class="text-red-600" name="password" />
+              <vee-field name="password" :bails="false" #default="{ field, errors }">
+                <input
+                  type="password"
+                  class="
+                    block
+                    w-full
+                    py-1.5
+                    px-3
+                    text-gray-800
+                    border border-gray-300
+                    transition
+                    duration-500
+                    focus:outline-none focus:border-black
+                    rounded
+                  "
+                  placeholder="Password"
+                  v-bind="field"
+                />
+                <div class="text-red-600" v-for="error in errors" :key="error">
+                  {{ error }}
+                </div>
+              </vee-field>
             </div>
             <!-- Confirm Password -->
             <div class="mb-3">
@@ -232,7 +240,7 @@
                 "
                 placeholder="Confirm Password"
               />
-             <error-message class="text-red-600" name="confirm_password" />
+              <error-message class="text-red-600" name="confirm_password" />
             </div>
             <!-- TOS -->
             <div class="mb-3 pl-6">
@@ -273,31 +281,31 @@
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "@/store/index";
 import { MutationType } from "@/types/Mutations";
-import { Tabs } from '@/types/Tabs'
-import { Schema } from '@/types/Schema'
+import { Tabs } from "@/types/Tabs";
+import { Schema } from "@/types/Schema";
 
 export default defineComponent({
   name: "Auth",
   setup() {
     const store = useStore();
-    const tab = ref<Tabs>('login');
+    const tab = ref<Tabs>("login");
 
     // schema for form validation
-    const schema: Schema = { 
-      name: 'required|min:3|max:50|alphaSpaces',
-      email: 'required|min:3|max:100',
-      password: 'required|min:8',
-      confirm_password: 'confirmed:@password',
-      tos: 'required'
-    }
+    const schema: Schema = {
+      name: "required|min:3|max:50|alphaSpaces",
+      email: "required|min:3|max:100|email",
+      password: "required|min:8",
+      confirm_password: "confirmed:@password",
+      tos: "required",
+    };
 
     const toggleModal = (): void =>
       store.commit(MutationType.ToggleAuthModal, !store.state.authModalShow);
     const authModalShow = computed(() => store.getters.authModalShow);
 
     const register = (values: Schema): void => {
-      console.log({values})
-    }
+      console.log({ values });
+    };
 
     return { tab, toggleModal, authModalShow, schema, register };
   },
