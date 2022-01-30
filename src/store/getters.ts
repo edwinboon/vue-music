@@ -1,9 +1,6 @@
 import { GetterTree } from 'vuex'
-import { State } from './state'
-
-export type Getters = {
-  authModalShow(state: State): boolean
-}
+import { State } from '@/types/State'
+import { Getters } from '@/types/Getters'
 
 export const getters: GetterTree<State, State> & Getters = {
   authModalShow(state: State) {

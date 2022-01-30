@@ -25,7 +25,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useStore } from '@/store/index'
-import { MutationType } from '@/store/mutations'
+import { MutationType } from '@/types/Mutations'
 
 export default defineComponent({
   name: "Header",
