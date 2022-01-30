@@ -13,6 +13,7 @@ The stack used for this app is listed down below.
 * Vuex
 * Vue Router
 * Typescript
+* Firebase
 * Jest
 * Cypress
 
