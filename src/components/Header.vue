@@ -13,8 +13,16 @@
               Login / Register
             </a>
           </li>
+        </ul>
+      </div>
+      <div class="flex flex-grow items-center justify-end">
+        <!-- Primary Navigation -->
+        <ul class="flex flex-row mt-1">
+          <!-- Navigation Links -->
           <li>
-            <a class="px-2 text-white" href="#">Manage</a>
+            <a class="px-2 text-white" href="#">
+              Edwin
+            </a>
           </li>
         </ul>
       </div>
