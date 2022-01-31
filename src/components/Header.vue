@@ -4,18 +4,27 @@
       <!-- App Name -->
       <a class="text-white font-bold uppercase text-2xl mr-4" href="#">Music</a>
 
-      <div class="flex flex-grow items-center">
+      <div class="flex flex-grow items-center justify-end">
         <!-- Primary Navigation -->
         <ul class="flex flex-row mt-1">
           <!-- Navigation Links -->
-          <li>
+          <li v-if="!isUserLoggedIn">
             <a class="px-2 text-white" href="#" @click.prevent="toggleAuthModal">
               Login / Register
             </a>
           </li>
-          <li>
-            <a class="px-2 text-white" href="#">Manage</a>
-          </li>
+          <template v-else>
+            <li>
+              <a class="px-2 text-white" href="#">
+                Manage
+              </a>
+            </li>
+            <li>
+              <a class="px-2 text-white" href="#" @click.prevent="signOut">
+                Logout
+              </a>
+            </li>
+          </template>
         </ul>
       </div>
     </nav>
@@ -23,9 +32,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 import { useStore } from '@/store/index'
-import { MutationType } from '@/types/Mutations'
+import { MutationsType } from '@/types/Mutations'
+import { ActionTypes } from "@/types/Actions";
 
 export default defineComponent({
   name: "Header",
@@ -34,10 +44,16 @@ export default defineComponent({
 
     // update state
     const toggleAuthModal = (): void => {
-      store.commit(MutationType.ToggleAuthModal, !store.state.authModalShow)
+      store.commit(MutationsType.ToggleAuthModal, !store.state.authModalShow)
     }
 
-    return { toggleAuthModal }
+    const isUserLoggedIn = computed(() => store.state.isLoggedIn);
+
+    const signOut = (): void => {
+      store.dispatch(ActionTypes.SetSignOut)
+    }
+
+    return { isUserLoggedIn, toggleAuthModal, signOut }
   }
 });
 </script>

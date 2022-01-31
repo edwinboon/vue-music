@@ -1,9 +1,12 @@
 import { MutationTree } from 'vuex'
 import { State } from '@/types/State'
-import { Mutations, MutationType } from '@/types/Mutations'
+import { Mutations, MutationsType } from '@/types/Mutations'
 
 export const mutations: MutationTree<State> & Mutations = {
-  [MutationType.ToggleAuthModal](state: State, payload: boolean) {
+  [MutationsType.ToggleAuthModal](state: State, payload: boolean) {
     state.authModalShow = payload
+  },
+  [MutationsType.ToggleAuth](state: State, payload: boolean) {
+    state.isLoggedIn = payload
   }
 }

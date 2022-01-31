@@ -137,10 +137,14 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { RegistrationSchema } from '@/types/Schema'
+import { useStore } from '@/store/index'
+import { ActionTypes } from '@/types/Actions'
+import { MutationsType } from '@/types/Mutations'
 
 export default defineComponent({
   name: 'RegistrationForm',
   setup() {
+    const store = useStore()
     // vars for reg alert
     const regInSubmission = ref<boolean>(false)
     const regShowAlert = ref<boolean>(false)
@@ -156,17 +160,31 @@ export default defineComponent({
       tos: "required",
     };
 
-    const register = (values: RegistrationSchema): void => {
+    const register = async (values: RegistrationSchema): Promise<void> => {
       regInSubmission.value = true
       regShowAlert.value = true
       // reset values to default
       regAlertVariation.value = 'bg-blue-500'
       regAlertMessage.value = 'Account being created...'
 
+      try {
+        await store.dispatch(ActionTypes.SetRegistration, values)
+      } catch (error: unknown) {
+          regInSubmission.value = false
+          regAlertVariation.value = 'bg-red-500'
+
+          if (error instanceof Error) regAlertMessage.value = error.message
+          regAlertMessage.value = String(error)
+          
+          return
+      }
+
       // dummy response for now
       regAlertVariation.value = 'bg-green-500'
       regAlertMessage.value = 'Your account has been created.'
-      console.log({values})
+
+      // close modal
+      store.commit(MutationsType.ToggleAuthModal, !store.state.authModalShow)
     };
 
     return { 
