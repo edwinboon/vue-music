@@ -3,8 +3,6 @@ import { State } from '@/types/State'
 import { Actions, ActionTypes } from '@/types/Actions'
 import { MutationsType } from '@/types/Mutations'
 import { auth, usersCollection, } from '@/includes/firebase'
-import { store } from '.'
-import { state } from './state'
 
 export const actions: ActionTree<State, State> & Actions = {
   async [ActionTypes.SetRegistration]({ commit, state }, payload) {
