@@ -77,10 +77,14 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { LoginSchema } from '@/types/Schema'
+import { useStore } from '@/store/index'
+import { ActionTypes } from '@/types/Actions';
+import { MutationsType } from '@/types/Mutations';
 
 export default defineComponent({
   name: 'LoginForm',
   setup() {
+    const store = useStore();
     // vars for login alert
     const loginInSubmission = ref<boolean>(false)
     const loginShowAlert = ref<boolean>(false)
@@ -93,17 +97,31 @@ export default defineComponent({
       password: "required|min:8|max:32",
     }
 
-    const login = (values: LoginSchema): void => {
+    const login = async (values: LoginSchema): Promise<void> => {
       loginInSubmission.value = true
       loginShowAlert.value = true
       // reset values to default
       loginAlertVariation.value = 'bg-blue-500'
       loginAlertMessage.value = 'Loggin in...'
 
+      try {
+        await store.dispatch(ActionTypes.SetLogin, values)
+      } catch (error: unknown) {
+        loginInSubmission.value = false
+        loginAlertVariation.value = 'bg-red-500'
+
+        if (error instanceof Error) loginAlertMessage.value = error.message
+        loginAlertMessage.value = String(error)
+          
+        return
+      }
+
       // dummy response for now
       loginAlertVariation.value = 'bg-green-500'
-      loginAlertMessage.value = 'Your have been successfully logged in.'
-      console.log({values})
+      loginAlertMessage.value = 'You have been successfully logged in.'
+      
+      // close modal
+      store.commit(MutationsType.ToggleAuthModal, !store.state.authModalShow)
     }
 
     return { loginSchema, login, loginInSubmission, loginShowAlert, loginAlertVariation, loginAlertMessage }

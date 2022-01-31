@@ -139,6 +139,7 @@ import { defineComponent, ref } from 'vue'
 import { RegistrationSchema } from '@/types/Schema'
 import { useStore } from '@/store/index'
 import { ActionTypes } from '@/types/Actions'
+import { MutationsType } from '@/types/Mutations'
 
 export default defineComponent({
   name: 'RegistrationForm',
@@ -181,6 +182,9 @@ export default defineComponent({
       // dummy response for now
       regAlertVariation.value = 'bg-green-500'
       regAlertMessage.value = 'Your account has been created.'
+
+      // close modal
+      store.commit(MutationsType.ToggleAuthModal, !store.state.authModalShow)
     };
 
     return { 
