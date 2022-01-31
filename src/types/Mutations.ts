@@ -1,10 +1,11 @@
 import { State } from '@/types/State'
 
-export enum MutationType {
+export enum MutationsType {
   ToggleAuthModal = 'TOGGLE_AUTH_MODAL',
-  AddUserName = 'ADD_USER_NAME',
+  ToggleAuth = 'TOGGLE_AUTH',
 }
 
 export type Mutations = {
-  [MutationType.ToggleAuthModal](state: State, payload: boolean): void 
+  [MutationsType.ToggleAuthModal](state: State, payload: boolean): void 
+  [MutationsType.ToggleAuth](state: State, payload: boolean): void
  }

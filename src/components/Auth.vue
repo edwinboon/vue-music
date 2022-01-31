@@ -95,7 +95,7 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
 import { Store, useStore } from "@/store/index";
-import { MutationType } from "@/types/Mutations";
+import { MutationsType } from "@/types/Mutations";
 import { Tabs } from "@/types/Tabs";
 import LoginForm from './LoginForm.vue'
 import RegistrationForm from './RegistrationForm.vue'
@@ -111,7 +111,7 @@ export default defineComponent({
     const tab = ref<Tabs>("login");
 
     const toggleModal = (): void =>
-      store.commit(MutationType.ToggleAuthModal, !store.state.authModalShow);
+      store.commit(MutationsType.ToggleAuthModal, !store.state.authModalShow);
     const authModalShow = computed(() => store.getters.authModalShow);
 
     return { tab, toggleModal, authModalShow };

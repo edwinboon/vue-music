@@ -5,5 +5,5 @@ import { Getters } from '@/types/Getters'
 export const getters: GetterTree<State, State> & Getters = {
   authModalShow(state: State) {
     return state.authModalShow
-  }
+  },
 }

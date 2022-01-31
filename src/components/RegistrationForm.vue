@@ -137,9 +137,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { RegistrationSchema } from '@/types/Schema'
-import { auth, usersCollection, } from '@/includes/firebase'
 import { useStore } from '@/store/index'
-import { MutationType } from '@/types/Mutations'
+import { ActionTypes } from '@/types/Actions'
 
 export default defineComponent({
   name: 'RegistrationForm',
@@ -167,12 +166,8 @@ export default defineComponent({
       regAlertVariation.value = 'bg-blue-500'
       regAlertMessage.value = 'Account being created...'
 
-      // register a new user in firebase
-      let user = null;
-
       try {
-        user = await auth.createUserWithEmailAndPassword(values.email, values.password)
-        console.log({ user })
+        await store.dispatch(ActionTypes.SetRegistration, values)
       } catch (error: unknown) {
           regInSubmission.value = false
           regAlertVariation.value = 'bg-red-500'
@@ -181,25 +176,6 @@ export default defineComponent({
           regAlertMessage.value = String(error)
           
           return
-      }
-
-      // Add user date to usersCollection
-
-      try {
-        const userData = await usersCollection.add({
-          name: values.name,
-          email: values.email
-        })
-
-        console.log({ userData })
-      } catch (error: unknown) {
-        regInSubmission.value = false
-        regAlertVariation.value = 'bg-red-500'
-
-        if (error instanceof Error) regAlertMessage.value = error.message
-        regAlertMessage.value = String(error)
-          
-        return
       }
 
       // dummy response for now

@@ -33,7 +33,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useStore } from '@/store/index'
-import { MutationType } from '@/types/Mutations'
+import { MutationsType } from '@/types/Mutations'
 
 export default defineComponent({
   name: "Header",
@@ -42,7 +42,7 @@ export default defineComponent({
 
     // update state
     const toggleAuthModal = (): void => {
-      store.commit(MutationType.ToggleAuthModal, !store.state.authModalShow)
+      store.commit(MutationsType.ToggleAuthModal, !store.state.authModalShow)
     }
 
     return { toggleAuthModal }
