@@ -2,7 +2,7 @@
   <header id="header" class="bg-gray-700">
     <nav class="container mx-auto flex justify-start items-center py-5 px-4">
       <!-- App Name -->
-      <router-link to="/" class="text-white font-bold uppercase text-2xl mr-4" href="#">Music</router-link>
+      <router-link :to="{ name: 'Home' }" exact-active-class="no-active" class="text-white font-bold uppercase text-2xl mr-4" href="#">Music</router-link>
 
       <div class="flex flex-grow items-center justify-end">
         <!-- Primary Navigation -->
@@ -15,7 +15,7 @@
           </li>
           <template v-else>
             <li>
-              <router-link class="px-2 text-white" to="/manage">
+              <router-link class="px-2 text-white" :to="{name: 'Manage' }">
                 Manage
               </router-link>
             </li>
