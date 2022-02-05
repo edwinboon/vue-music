@@ -45,6 +45,8 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
 
+    const meta = computed(() => route.meta)
+
     // update state
     const toggleAuthModal = (): void => {
       store.commit(MutationsType.ToggleAuthModal, !store.state.authModalShow)
@@ -55,7 +57,7 @@ export default defineComponent({
     const signOut = (): void => {
       store.dispatch(ActionTypes.SetSignOut)
 
-      if(route.meta.value.requiresAuth) {
+      if(meta.value.requiresAuth) {
         router.push({ name: 'Home' })
       }
     }
