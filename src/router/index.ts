@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { useStore } from '@/store/index'
 import Home from '@/views/Home.vue'
+
+const store = useStore()
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -10,11 +13,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/manage',
     name: 'Manage',
+    meta: {
+      requiresAuth: true
+    },
     component: () => import('@/views/Manage.vue'),
   },
   {
     path: '/:catchAll(.*)*',
-    component: () => import('@/views/404.vue')
+    component: () => import('@/views/404.vue'),
   }
 ]
 
@@ -22,6 +28,19 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   linkExactActiveClass: 'text-yellow-500',
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if(!to.matched.some(record => record.meta.requiresAuth)) {
+    return next()
+  }
+
+  if(store.state.isLoggedIn) {
+    next()
+  } else {
+    next({ name: 'Home' })
+  }
+
 })
 
 export default router

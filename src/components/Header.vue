@@ -36,21 +36,28 @@ import { computed, defineComponent } from "vue";
 import { useStore } from '@/store/index'
 import { MutationsType } from '@/types/Mutations'
 import { ActionTypes } from "@/types/Actions";
+import { useRoute, useRouter } from 'vue-router'
 
 export default defineComponent({
   name: "Header",
   setup() {
-    const store = useStore();
+    const store = useStore()
+    const router = useRouter()
+    const route = useRoute()
 
     // update state
     const toggleAuthModal = (): void => {
       store.commit(MutationsType.ToggleAuthModal, !store.state.authModalShow)
     }
 
-    const isUserLoggedIn = computed(() => store.state.isLoggedIn);
+    const isUserLoggedIn = computed(() => store.state.isLoggedIn)
 
     const signOut = (): void => {
       store.dispatch(ActionTypes.SetSignOut)
+
+      if(route.meta.value.requiresAuth) {
+        router.push({ name: 'Home' })
+      }
     }
 
     return { isUserLoggedIn, toggleAuthModal, signOut }
