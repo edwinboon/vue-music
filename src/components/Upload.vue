@@ -56,7 +56,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { storage } from '@/includes/firebase'
+import { storage, auth, songsCollection } from '@/includes/firebase'
 
 export default defineComponent({
   name: "Upload",
@@ -107,7 +107,20 @@ export default defineComponent({
             uploads.value[uploadIndex].variant = 'bg-red-400'
             uploads.value[uploadIndex].icon = 'fas fa-times'
             uploads.value[uploadIndex].textClass = 'text-red-400'
-          }, () => {
+          }, async () => {
+            // store data in the database
+            const song = {
+              uid: auth.currentUser?.uid,
+              display_name: auth.currentUser?.displayName,
+              original_name: task.snapshot.ref.name,
+              modified_name: task.snapshot.ref.name,
+              genre: '',
+              comment_count: 0,
+              url: await task.snapshot.ref.getDownloadURL()
+            }
+
+            await songsCollection.add(song)
+
             uploads.value[uploadIndex].variant = 'bg-green-400'
             uploads.value[uploadIndex].icon = 'fas fa-check'
             uploads.value[uploadIndex].textClass = 'text-green-400'
