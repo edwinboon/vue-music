@@ -30,7 +30,7 @@
         @dragover.prevent.stop="isDragOver = true"
         @dragenter.prevent.stop="isDragOver = true"
         @dragleave.prevent.stop="isDragOver = false"
-        @drop.prevent.stop="upload"
+        @drop.prevent.stop="upload($event)"
       >
         <h5>Drop your files here</h5>
       </div>
@@ -76,8 +76,29 @@ export default defineComponent({
   name: "Upload",
   setup() {
     const isDragOver = ref<boolean>(false)
-    const upload: void = () => {
+    
+    // upload to firebase
+    const upload = (event: DragEvent): void => {
       isDragOver.value = false
+
+      // check if there is a dataTransfer object
+      if(event && event.dataTransfer) {
+        const filesObject = event.dataTransfer.files
+        // convert object to array of objects
+        const files: File[] = Object.keys(filesObject).map((_, index) => {
+          return filesObject[index]
+        })
+
+        files.forEach((file: File) => {
+          if(file.type !== 'audio/mpeg') {
+            return 
+          }
+
+          console.log(file)
+        })
+      }
+
+      return
     }
 
     return { isDragOver, upload }
