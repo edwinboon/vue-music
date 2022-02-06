@@ -36,32 +36,17 @@
       </div>
       <hr class="my-6" />
       <!-- Progess Bars -->
-      <div class="mb-4">
+      <div class="mb-4" v-for="upload in uploads" :key="upload.name">
         <!-- File Name -->
-        <div class="font-bold text-sm">Just another song.mp3</div>
+        <div class="font-bold text-sm" :class="upload.textClass">
+          <i :class="upload.icon"/> {{ upload.name }}
+        </div>
         <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
           <!-- Inner Progress Bar -->
           <div
-            class="transition-all progress-bar bg-blue-400"
-            style="width: 75%"
-          ></div>
-        </div>
-      </div>
-      <div class="mb-4">
-        <div class="font-bold text-sm">Just another song.mp3</div>
-        <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
-          <div
-            class="transition-all progress-bar bg-blue-400"
-            style="width: 35%"
-          ></div>
-        </div>
-      </div>
-      <div class="mb-4">
-        <div class="font-bold text-sm">Just another song.mp3</div>
-        <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
-          <div
-            class="transition-all progress-bar bg-blue-400"
-            style="width: 55%"
+            class="transition-all progress-bar"
+            :class="upload.variant"
+            :style="{ width: `${upload.currentProgress}%`}"
           ></div>
         </div>
       </div>
@@ -71,11 +56,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
+import { storage } from '@/includes/firebase'
 
 export default defineComponent({
   name: "Upload",
   setup() {
     const isDragOver = ref<boolean>(false)
+    const uploads = ref<Record<string, unknown>[]>([])
     
     // upload to firebase
     const upload = (event: DragEvent): void => {
@@ -94,14 +81,44 @@ export default defineComponent({
             return 
           }
 
-          console.log(file)
+          // create ref to where to store
+          const storageRef = storage.ref()
+          const songsRef = storageRef.child(`songs/${file.name}`)
+
+          // upload the file
+          const task = songsRef.put(file)
+
+          // get index and fill uploads array
+          const uploadIndex = uploads.value.push({
+            task,
+            currentProgress: 0,
+            name: file.name,
+            variant: 'bg-purple-400',
+            icon: 'fas fa-spinner fa-spin', 
+            textClass: '',
+          }) - 1
+
+          // listen to events
+          task.on('state_changed', (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            uploads.value[uploadIndex].currentProgress = progress
+
+          }, () => {
+            uploads.value[uploadIndex].variant = 'bg-red-400'
+            uploads.value[uploadIndex].icon = 'fas fa-times'
+            uploads.value[uploadIndex].textClass = 'text-red-400'
+          }, () => {
+            uploads.value[uploadIndex].variant = 'bg-green-400'
+            uploads.value[uploadIndex].icon = 'fas fa-check'
+            uploads.value[uploadIndex].textClass = 'text-green-400'
+          })
         })
       }
 
       return
     }
 
-    return { isDragOver, upload }
+    return { isDragOver, upload, uploads}
   }
 });
 </script>
