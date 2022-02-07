@@ -34,19 +34,20 @@
       >
         <h5>Drop your files here</h5>
       </div>
+      <input type="file" multiple @change="uploadInput($event)" />
       <hr class="my-6" />
       <!-- Progess Bars -->
       <div class="mb-4" v-for="upload in uploads" :key="upload.name">
         <!-- File Name -->
         <div class="font-bold text-sm" :class="upload.textClass">
-          <i :class="upload.icon"/> {{ upload.name }}
+          <i :class="upload.icon" /> {{ upload.name }}
         </div>
         <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
           <!-- Inner Progress Bar -->
           <div
             class="transition-all progress-bar"
             :class="upload.variant"
-            :style="{ width: `${upload.currentProgress}%`}"
+            :style="{ width: `${upload.currentProgress}%` }"
           ></div>
         </div>
       </div>
@@ -55,83 +56,108 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { storage, auth, songsCollection } from '@/includes/firebase'
+import { defineComponent, ref, onBeforeUnmount } from "vue";
+import { storage, auth, songsCollection } from "@/includes/firebase";
+import { Upload } from '@/types/Upload'
 
 export default defineComponent({
   name: "Upload",
   setup() {
-    const isDragOver = ref<boolean>(false)
-    const uploads = ref<Record<string, unknown>[]>([])
-    
+    const isDragOver = ref<boolean>(false);
+    const uploads = ref<Upload[]>([]);
+    onBeforeUnmount(() => {
+      uploads.value.forEach((uploadToCancel) => {
+        uploadToCancel.task.cancel();
+      });
+    });
+
     // upload to firebase
     const upload = (event: DragEvent): void => {
-      isDragOver.value = false
+      isDragOver.value = false;
 
       // check if there is a dataTransfer object
-      if(event && event.dataTransfer) {
-        const filesObject = event.dataTransfer.files
-        // convert object to array of objects
-        const files: File[] = Object.keys(filesObject).map((_, index) => {
-          return filesObject[index]
-        })
+      if (event.dataTransfer) {
+        const filesObject = event.dataTransfer.files;
+        uploadSongs(filesObject);
+      }
+      return;
+    };
 
-        files.forEach((file: File) => {
-          if(file.type !== 'audio/mpeg') {
-            return 
-          }
+    // create fallback
+    const uploadInput = (event: { target: HTMLInputElement }): void => {
+      // check if there is a target object
+      if (event.target && event.target.files) {
+        const filesObject = event.target.files;
+        uploadSongs(filesObject);
+      }
+      return;
+    };
 
-          // create ref to where to store
-          const storageRef = storage.ref()
-          const songsRef = storageRef.child(`songs/${file.name}`)
+    const uploadSongs = (filesObject: FileList): void => {
+      // convert object to array of objects
+      const files: File[] = Object.keys(filesObject).map((_, index) => {
+        return filesObject[index];
+      });
 
-          // upload the file
-          const task = songsRef.put(file)
+      files.forEach((file: File) => {
+        if (file.type !== "audio/mpeg") {
+          return;
+        }
 
-          // get index and fill uploads array
-          const uploadIndex = uploads.value.push({
+        // create ref to where to store
+        const storageRef = storage.ref();
+        const songsRef = storageRef.child(`songs/${file.name}`);
+
+        // upload the file
+        const task = songsRef.put(file);
+
+        // get index and fill uploads array
+        const uploadIndex: number =
+          uploads.value.push({
             task,
             currentProgress: 0,
             name: file.name,
-            variant: 'bg-purple-400',
-            icon: 'fas fa-spinner fa-spin', 
-            textClass: '',
-          }) - 1
+            variant: "bg-purple-400",
+            icon: "fas fa-spinner fa-spin",
+            textClass: "",
+          }) - 1;
 
-          // listen to events
-          task.on('state_changed', (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            uploads.value[uploadIndex].currentProgress = progress
-
-          }, () => {
-            uploads.value[uploadIndex].variant = 'bg-red-400'
-            uploads.value[uploadIndex].icon = 'fas fa-times'
-            uploads.value[uploadIndex].textClass = 'text-red-400'
-          }, async () => {
+        // listen to events
+        task.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            uploads.value[uploadIndex].currentProgress = progress;
+          },
+          () => {
+            uploads.value[uploadIndex].variant = "bg-red-400";
+            uploads.value[uploadIndex].icon = "fas fa-times";
+            uploads.value[uploadIndex].textClass = "text-red-400";
+          },
+          async () => {
             // store data in the database
             const song = {
               uid: auth.currentUser?.uid,
               display_name: auth.currentUser?.displayName,
               original_name: task.snapshot.ref.name,
               modified_name: task.snapshot.ref.name,
-              genre: '',
+              genre: "",
               comment_count: 0,
-              url: await task.snapshot.ref.getDownloadURL()
-            }
+              url: await task.snapshot.ref.getDownloadURL(),
+            };
 
-            await songsCollection.add(song)
+            await songsCollection.add(song);
 
-            uploads.value[uploadIndex].variant = 'bg-green-400'
-            uploads.value[uploadIndex].icon = 'fas fa-check'
-            uploads.value[uploadIndex].textClass = 'text-green-400'
-          })
-        })
-      }
+            uploads.value[uploadIndex].variant = "bg-green-400";
+            uploads.value[uploadIndex].icon = "fas fa-check";
+            uploads.value[uploadIndex].textClass = "text-green-400";
+          }
+        );
+      });
+    };
 
-      return
-    }
-
-    return { isDragOver, upload, uploads}
-  }
+    return { isDragOver, upload, uploadInput, uploads };
+  },
 });
 </script>

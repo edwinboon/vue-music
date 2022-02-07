@@ -20,4 +20,4 @@ const storage = firebase.storage()
 const usersCollection = db.collection('users')
 const songsCollection = db.collection('songs')
 
-export { auth, db, storage, usersCollection, songsCollection }
+export { auth, db, storage, usersCollection, songsCollection, firebase }
