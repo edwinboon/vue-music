@@ -148,7 +148,7 @@ export default defineComponent({
     // vars for reg alert
     const regInSubmission = ref<boolean>(false)
     const regShowAlert = ref<boolean>(false)
-    const regAlertVariation = ref<string>('bg-blue-500')
+    const regAlertVariation = ref<string>('bg-purple-500')
     const regAlertMessage = ref<string>('Account being created...')
 
     // schema for register validation
@@ -164,7 +164,7 @@ export default defineComponent({
       regInSubmission.value = true
       regShowAlert.value = true
       // reset values to default
-      regAlertVariation.value = 'bg-blue-500'
+      regAlertVariation.value = 'bg-purple-500'
       regAlertMessage.value = 'Account being created...'
 
       try {

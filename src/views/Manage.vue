@@ -2,7 +2,7 @@
   <section class="container mx-auto mt-6">
     <div class="md:grid md:grid-cols-3 md:gap-4">
       <div class="col-span-1">
-        <upload />
+        <upload :addSong="addSong" />
       </div>
       <div class="col-span-2">
         <div
@@ -15,7 +15,14 @@
             ></i>
           </div>
           <div class="p-6">
-            <songs-list v-for="song in songs" :key="song.id" :song="song"/>
+            <songs-list
+              v-for="song in songs"
+              :key="song.id"
+              :song="song"
+              :updateSong="updateSong"
+              :removeSong="removeSong"
+              :updateUnsavedFlag="updateUnsavedFlag"
+            />
           </div>
         </div>
       </div>
@@ -24,43 +31,74 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
-import { auth, songsCollection } from "@/includes/firebase";
-import { Song } from '@/types/Song'
-import { firebase } from '@/includes/firebase'
-import Upload from "@/components/Upload.vue";
-import SongsList from '@/components/SongsList.vue'
+import { defineComponent, ref, onMounted } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
+import { auth, songsCollection } from '@/includes/firebase';
+import { Song } from '@/types/Song';
+import { firebase } from '@/includes/firebase';
+import { SongSchema } from '@/types/Schema';
+import Upload from '@/components/Upload.vue';
+import SongsList from '@/components/SongsList.vue';
 
 export default defineComponent({
-  name: "Manage",
+  name: 'Manage',
   components: {
     Upload,
     SongsList,
   },
   setup() {
     const songs = ref<Song[]>([]);
+    const unsavedFlag = ref<boolean>(false)
 
     onMounted(async () => {
       try {
         const snapshot = await songsCollection
-          .where("uid", "==", auth?.currentUser?.uid)
+          .where('uid', '==', auth?.currentUser?.uid)
           .get();
 
         snapshot.forEach((document: firebase.firestore.DocumentData) => {
-          const song: Song = {
-            ...document.data(),
-            id: document.id
-
-          };
-
-          songs.value.push(song)
+          addSong(document);
         });
       } catch (error) {
         console.log(error);
       }
     });
 
-    return { songs };
+    onBeforeRouteLeave((to, from, next) => {
+      if(!unsavedFlag.value) {
+        next()
+      } else {
+        const leave = confirm('You have unsaved changes. Are you sure you want to leave?')
+        next(leave)
+      }
+    }) 
+
+    const updateSong = (id: string, values: SongSchema): void => {
+      const songToUpdate = songs.value.find((song) => song.id === id);
+
+      if (songToUpdate) {
+        songToUpdate.modified_name = values.modified_name;
+        songToUpdate.genre = values.genre;
+      }
+    };
+
+    const removeSong = (id: string): void => {
+      const songToDelete = songs.value.findIndex((song) => song.id === id);
+      songs.value.splice(songToDelete, 1);
+    };
+
+    const addSong = (document: firebase.firestore.DocumentData): void => {
+      const song: Song = {
+        ...document.data(),
+        id: document.id,
+      };
+
+      songs.value.push(song);
+    };
+
+    const updateUnsavedFlag = (value: boolean) => unsavedFlag.value = value
+
+    return { songs, updateSong, removeSong, addSong, updateUnsavedFlag };
   },
 });
 </script>

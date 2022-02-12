@@ -1,11 +1,4 @@
 <template>
-  <div
-    v-if="loginShowAlert"
-    class="text-white text-center font-bold p-5 mb-4"
-    :class="loginAlertVariation"
-  >
-    {{ loginAlertMessage }}
-  </div>
   <vee-form
     :validation-schema="loginSchema"
     @submit="login"
@@ -88,7 +81,7 @@ export default defineComponent({
     // vars for login alert
     const loginInSubmission = ref<boolean>(false)
     const loginShowAlert = ref<boolean>(false)
-    const loginAlertVariation = ref<string>('bg-blue-500')
+    const loginAlertVariation = ref<string>('bg-purple-500')
     const loginAlertMessage = ref<string>('loggin in...')
 
     // schema for login validation
@@ -101,7 +94,7 @@ export default defineComponent({
       loginInSubmission.value = true
       loginShowAlert.value = true
       // reset values to default
-      loginAlertVariation.value = 'bg-blue-500'
+      loginAlertVariation.value = 'bg-purple-500'
       loginAlertMessage.value = 'Loggin in...'
 
       try {

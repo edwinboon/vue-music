@@ -10,3 +10,8 @@ export interface LoginSchema {
   email: string,
   password: string
 }
+
+export interface SongSchema {
+  modified_name: string,
+  genre: string
+}
