@@ -14,7 +14,7 @@
   >
     <div>
       <a href="#" class="font-bold block text-gray-600">{{ song.modified_name }}</a>
-      <span class="text-gray-500 text-sm">{{ song.name }}</span>
+      <span class="text-gray-500 text-sm">{{ song.display_name }}</span>
     </div>
 
     <div class="text-gray-600 text-lg">

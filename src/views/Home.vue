@@ -33,7 +33,7 @@
       </div>
       <!-- Playlist -->
       <ol id="playlist">
-        <song-item v-for="song in songs" :key="song.id" :song="song"/>
+        <song-item v-for="song in songs" :key="song.id" :song="song" />
       </ol>
       <!-- .. end Playlist -->
     </div>
@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue'
 import { songsCollection, firebase } from '@/includes/firebase'
 import { Song } from '@/types/Song'
 import SongItem from '@/components/SongItem.vue'
@@ -49,18 +49,67 @@ import SongItem from '@/components/SongItem.vue'
 export default defineComponent({
   name: 'Home',
   components: {
-    SongItem
+    SongItem,
   },
   setup() {
     const songs = ref<Song[]>([])
+    const pendingRequest = ref(false)
+    const maxPerPage = 25
+
+    const getSongs = async () => {
+      if (pendingRequest.value) {
+        return
+      }
+
+      pendingRequest.value = true
+
+      let snapshots: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
+
+      if (songs.value.length) {
+        // get last document
+        const lastItem = songs.value.slice(-1)[0]
+        const lastDocument = await songsCollection.doc(lastItem.id).get()
+
+        snapshots = await songsCollection
+          .orderBy('modified_name')
+          .startAfter(lastDocument)
+          .limit(maxPerPage)
+          .get()
+      } else {
+        snapshots = await songsCollection
+          .orderBy('modified_name')
+          .limit(maxPerPage)
+          .get()
+      }
+
+      snapshots.forEach((document: firebase.firestore.DocumentData) => {
+        songs.value.push({ ...document.data(), id: document.id })
+      })
+
+      pendingRequest.value = false
+    }
+    const handleScroll = () => {
+      const { scrollTop, offsetHeight } = document.documentElement
+      const { innerHeight } = window
+
+      const bottomOfWindow =
+        Math.round(scrollTop) + innerHeight === offsetHeight
+
+      if (bottomOfWindow) {
+        getSongs()
+      }
+    }
 
     // get songs
     onMounted(async () => {
-      const snapshots = await songsCollection.get()
+      getSongs()
 
-      snapshots.forEach((document: firebase.firestore.DocumentData) => {
-        songs.value.push({...document.data(), id: document.id})
-      })
+      // get scroll posistion
+      window.addEventListener('scroll', handleScroll)
+    })
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('scroll', handleScroll)
     })
 
     return { songs }
