@@ -19,6 +19,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/Manage.vue'),
   },
   {
+    path: '/song/:id',
+    name: 'Song',
+    component: () => import('@/views/Song.vue'),
+  },
+  {
     path: '/:catchAll(.*)*',
     component: () => import('@/views/404.vue'),
   }
