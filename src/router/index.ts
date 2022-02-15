@@ -24,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/Song.vue'),
   },
   {
+    path: '/404',
+    name: '404',
+    component: () => import('@/views/404.vue'),
+  },
+  {
     path: '/:catchAll(.*)*',
     component: () => import('@/views/404.vue'),
   }

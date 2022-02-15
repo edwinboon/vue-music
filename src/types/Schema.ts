@@ -15,3 +15,7 @@ export interface SongSchema {
   modified_name: string,
   genre: string
 }
+
+export interface CommentSchema {
+  comment: string
+}

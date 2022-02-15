@@ -59,7 +59,7 @@ export default defineComponent({
         snapshot.forEach((document: firebase.firestore.DocumentData) => {
           addSong(document);
         });
-      } catch (error) {
+      } catch (error: unknown) {
         console.log(error);
       }
     });
