@@ -38,11 +38,21 @@
         <i class="fa fa-comments float-right text-purple-400 text-2xl"></i>
       </div>
       <div class="p-6">
-        <div class="text-white text-center font-bold p-4 mb-4" :class="commentAlertVariant" v-if="commentShowAlert">
+        <div
+          class="text-white text-center font-bold p-4 mb-4"
+          :class="commentAlertVariant"
+          v-if="commentShowAlert"
+        >
           {{ commentAlertMessage }}
         </div>
-        <vee-form :validation-schema="commentSchema" @submit="addComment" v-if="isUserLoggedIn">
-          <vee-field name="comment" as="textarea"
+        <vee-form
+          :validation-schema="commentSchema"
+          @submit="addComment"
+          v-if="isUserLoggedIn"
+        >
+          <vee-field
+            name="comment"
+            as="textarea"
             class="
               block
               w-full
@@ -71,6 +81,7 @@
         </vee-form>
         <!-- Sort Comments -->
         <select
+          v-model="sort"
           class="
             block
             mt-4
@@ -91,86 +102,36 @@
     </div>
   </section>
   <!-- Comments -->
-  <ul class="container mx-auto">
-    <li class="p-6 bg-gray-50 border border-gray-200">
+  <section>
+  <ul class="container mx-auto" style="margin-bottom: 80px">
+    <li
+      class="p-6 bg-white border border-gray-200"
+      v-for="comment in sortedComments"
+      :key="comment.songId"
+    >
       <!-- Comment Author -->
       <div class="mb-5">
-        <div class="font-bold">Elaine Dreyfuss</div>
-        <time>5 mins ago</time>
+        <div class="font-bold">{{ comment.name }}</div>
+        <time>{{ comment.datePosted }}</time>
       </div>
 
       <p>
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-        accusantium der doloremque laudantium.
-      </p>
-    </li>
-    <li class="p-6 bg-gray-50 border border-gray-200">
-      <!-- Comment Author -->
-      <div class="mb-5">
-        <div class="font-bold">Elaine Dreyfuss</div>
-        <time>5 mins ago</time>
-      </div>
-
-      <p>
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-        accusantium der doloremque laudantium.
-      </p>
-    </li>
-    <li class="p-6 bg-gray-50 border border-gray-200">
-      <!-- Comment Author -->
-      <div class="mb-5">
-        <div class="font-bold">Elaine Dreyfuss</div>
-        <time>5 mins ago</time>
-      </div>
-
-      <p>
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-        accusantium der doloremque laudantium.
-      </p>
-    </li>
-    <li class="p-6 bg-gray-50 border border-gray-200">
-      <!-- Comment Author -->
-      <div class="mb-5">
-        <div class="font-bold">Elaine Dreyfuss</div>
-        <time>5 mins ago</time>
-      </div>
-
-      <p>
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-        accusantium der doloremque laudantium.
-      </p>
-    </li>
-    <li class="p-6 bg-gray-50 border border-gray-200">
-      <!-- Comment Author -->
-      <div class="mb-5">
-        <div class="font-bold">Elaine Dreyfuss</div>
-        <time>5 mins ago</time>
-      </div>
-
-      <p>
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-        accusantium der doloremque laudantium.
-      </p>
-    </li>
-    <li class="p-6 bg-gray-50 border border-gray-200">
-      <!-- Comment Author -->
-      <div class="mb-5">
-        <div class="font-bold">Elaine Dreyfuss</div>
-        <time>5 mins ago</time>
-      </div>
-
-      <p>
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-        accusantium der doloremque laudantium.
+        {{ comment.content }}
       </p>
     </li>
   </ul>
+  </section>
 </template>
 <script lang="ts">
 import { computed, defineComponent, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Song } from '@/types/Song'
-import { commentsCollection, songsCollection, auth } from '@/includes/firebase'
+import {
+  commentsCollection,
+  songsCollection,
+  auth,
+  firebase,
+} from '@/includes/firebase'
 import { CommentSchema } from '@/types/Schema'
 import { Comment } from '@/types/Comment'
 import { Store, useStore } from '@/store/index'
@@ -181,21 +142,42 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const song = ref<Song>()
-    const store: Store = useStore();
-    
+    const comments = ref<Comment[]>([])
+    const sort = ref<string>('1')
+    const store: Store = useStore()
+
     const commentInSubmission = ref<boolean>(false)
     const commentShowAlert = ref<boolean>(false)
     const commentAlertVariant = ref<string>('bg-purple-500')
     const commentAlertMessage = ref<string>('Commment is being submitted.')
 
     const commentSchema: CommentSchema = {
-      comment: 'required|min:3'
+      comment: 'required|min:3',
     }
 
     const isUserLoggedIn = computed(() => store.state.isLoggedIn)
+    const sortedComments = computed(() => {
+      console.log(sort.value)
+      return comments.value.slice().sort((a, b) => {
+        if (sort.value === '1') {
+          console.log('b: ', new Date(b.datePosted).getTime())
+          console.log('a: ', new Date(a.datePosted).getTime())
+          return Math.abs(
+            new Date(b.datePosted).getTime() - new Date(a.datePosted).getTime()
+          )
+        } else {
+          return Math.abs(
+            new Date(a.datePosted).getTime() - new Date(b.datePosted).getTime()
+          )
+        }
+      })
+    })
 
     // todo fix any tupe for resetForm
-    const addComment = async (values: CommentSchema, { resetForm }: any): Promise<void> => {
+    const addComment = async (
+      values: CommentSchema,
+      { resetForm }: any
+    ): Promise<void> => {
       // reset default values
       commentInSubmission.value = true
       commentShowAlert.value = true
@@ -207,7 +189,7 @@ export default defineComponent({
         datePosted: new Date().toString(),
         songId: route.params.id as string,
         name: auth.currentUser?.displayName,
-        uid: auth.currentUser?.uid
+        uid: auth.currentUser?.uid,
       }
       try {
         await commentsCollection.add(comment)
@@ -217,9 +199,12 @@ export default defineComponent({
 
         if (error instanceof Error) commentAlertMessage.value = error.message
         commentAlertMessage.value = String(error)
-          
+
         return
       }
+
+      // get commmenst
+      await getComments()
 
       commentInSubmission.value = false
       commentAlertVariant.value = 'bg-green-500'
@@ -227,7 +212,19 @@ export default defineComponent({
 
       // reset form
       resetForm()
+    }
 
+    const getComments = async () => {
+      const snapshots = await commentsCollection
+        .where('songId', '==', route.params.id)
+        .get()
+
+      // reset comments to prevent duplicate comments
+      comments.value = []
+
+      snapshots.forEach((document: firebase.firestore.DocumentData) => {
+        comments.value.push({ ...document.data() })
+      })
     }
 
     onMounted(async () => {
@@ -241,7 +238,7 @@ export default defineComponent({
 
       const document = snapshot.data()
 
-      if(!document) {
+      if (!document) {
         return router.push({ name: '404' })
       }
 
@@ -255,17 +252,22 @@ export default defineComponent({
         uid: document.uid,
         url: document.url,
       }
+
+      await getComments()
     })
 
-    return { 
+    return {
       addComment,
-      commentSchema, 
+      comments,
+      commentSchema,
       commentInSubmission,
       commentShowAlert,
       commentAlertVariant,
       commentAlertMessage,
       isUserLoggedIn,
-      song 
+      song,
+      sort,
+      sortedComments,
     }
   },
 })
