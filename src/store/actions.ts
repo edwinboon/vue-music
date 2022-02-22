@@ -3,6 +3,7 @@ import { State } from '@/types/State'
 import { Actions, ActionTypes } from '@/types/Actions'
 import { MutationsType } from '@/types/Mutations'
 import { auth, usersCollection, } from '@/includes/firebase'
+import { Howl } from 'howler'
 
 export const actions: ActionTree<State, State> & Actions = {
   async [ActionTypes.SetRegistration]({ commit, state }, payload) {
@@ -42,7 +43,39 @@ export const actions: ActionTree<State, State> & Actions = {
 
     commit(MutationsType.ToggleAuth, !state.isLoggedIn)
   },
-  async [ActionTypes.SetNewSong]({ commit }, payload) {
+  async [ActionTypes.SetNewSong]({ commit, state, dispatch }, payload) {
+    if(state.song instanceof Howl) {
+      state.song.unload()
+    }
+
     commit(MutationsType.NewSong, payload)
+    state.song.play()
+
+    // listen to events
+    state.song.on('play', () => {
+      requestAnimationFrame(() => {
+        dispatch(ActionTypes.SetProgress)
+      })
+    })
+  },
+  async [ActionTypes.SetToggleSong]({ state }) {
+    if(!state.song.playing) {
+      return
+    }
+
+    if(state.song.playing()) {
+      state.song.pause()
+    } else {
+      state.song.play()
+    }
+  },
+  async [ActionTypes.SetProgress]({ commit, state, dispatch }) {
+    commit(MutationsType.UpdatePosition, undefined)
+
+    if(state.song.playing()) {
+      requestAnimationFrame(() => {
+        dispatch(ActionTypes.SetProgress)
+      })
+    }
   }
 }

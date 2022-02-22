@@ -10,6 +10,8 @@ export enum ActionTypes {
   SetLogin = 'SET_LOGIN',
   SetSignOut = 'SET_SIGN_OUT',
   SetNewSong = 'SET_NEW_SONG',
+  SetToggleSong = 'SET_TOGGLE_SONG',
+  SetProgress = 'SET_PROGRESS'
 }
 
 
@@ -26,4 +28,6 @@ export type Actions = {
   [ActionTypes.SetLogin](context: ActionAugments, payload: LoginSchema): void
   [ActionTypes.SetSignOut](context: ActionAugments): void
   [ActionTypes.SetNewSong](context: ActionAugments, payload: Song): void
+  [ActionTypes.SetToggleSong](context: ActionAugments): void
+  [ActionTypes.SetProgress](context: ActionAugments): void
 }
