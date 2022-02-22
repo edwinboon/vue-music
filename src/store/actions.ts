@@ -41,5 +41,8 @@ export const actions: ActionTree<State, State> & Actions = {
     await auth.signOut()
 
     commit(MutationsType.ToggleAuth, !state.isLoggedIn)
+  },
+  async [ActionTypes.SetNewSong]({ commit }, payload) {
+    commit(MutationsType.NewSong, payload)
   }
 }

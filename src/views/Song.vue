@@ -9,6 +9,7 @@
       <div class="container mx-auto flex items-center">
         <!-- Play/Pause Button -->
         <button
+          @click.prevent="newSong"
           type="button"
           class="
             z-50
@@ -134,6 +135,7 @@ import {
 import { CommentSchema } from '@/types/Schema'
 import { Comment } from '@/types/Comment'
 import { Store, useStore } from '@/store/index'
+import { ActionTypes } from '@/types/Actions'
 
 export default defineComponent({
   name: 'Song',
@@ -181,6 +183,15 @@ export default defineComponent({
       })
     })
 
+    const newSong = async () => {
+      try {
+        await store.dispatch(ActionTypes.SetNewSong, song.value)
+      } catch (error: unknown) {
+        if (error instanceof Error) console.log(error)
+        console.log(String(error))
+      }
+    }
+
     // todo fix any tupe for resetForm
     const addComment = async (
       values: CommentSchema,
@@ -215,7 +226,7 @@ export default defineComponent({
       if (song.value) {
         song.value.comment_count += 1
         await songsCollection.doc(route.params.id as string).update({
-          comment_count: song.value.comment_count
+          comment_count: song.value.comment_count,
         })
       }
 
@@ -285,6 +296,7 @@ export default defineComponent({
       commentAlertVariant,
       commentAlertMessage,
       isUserLoggedIn,
+      newSong,
       song,
       sorting,
       sortedComments,

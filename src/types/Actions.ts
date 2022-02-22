@@ -1,6 +1,7 @@
 import { ActionContext } from 'vuex'
 import { Mutations } from './mutations'
 import { LoginSchema, RegistrationSchema } from './Schema'
+import { Song } from '../types/Song'
 import { State } from './state'
  
 export enum ActionTypes {
@@ -8,6 +9,7 @@ export enum ActionTypes {
   InitLogin = 'INIT_LOGIN',
   SetLogin = 'SET_LOGIN',
   SetSignOut = 'SET_SIGN_OUT',
+  SetNewSong = 'SET_NEW_SONG',
 }
 
 
@@ -23,4 +25,5 @@ export type Actions = {
   [ActionTypes.InitLogin](context: ActionAugments): void
   [ActionTypes.SetLogin](context: ActionAugments, payload: LoginSchema): void
   [ActionTypes.SetSignOut](context: ActionAugments): void
+  [ActionTypes.SetNewSong](context: ActionAugments, payload: Song): void
 }
