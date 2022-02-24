@@ -77,5 +77,21 @@ export const actions: ActionTree<State, State> & Actions = {
         dispatch(ActionTypes.SetProgress)
       })
     }
+  },
+  async [ActionTypes.SetUpdateSeek]({state, dispatch }, payload) {
+    if(!state.song.playing) {
+      return
+    }
+
+    const { x, width } = payload.currentTarget.getBoundingClientRect();
+    const clickX = payload.clientX - x
+    const percentage = clickX / width
+    const seconds = state.song.duration() * percentage
+
+    state.song.seek(seconds)
+
+    state.song.once('seek', () => {
+      dispatch(ActionTypes.SetProgress)
+    })
   }
 }

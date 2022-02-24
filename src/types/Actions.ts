@@ -11,7 +11,8 @@ export enum ActionTypes {
   SetSignOut = 'SET_SIGN_OUT',
   SetNewSong = 'SET_NEW_SONG',
   SetToggleSong = 'SET_TOGGLE_SONG',
-  SetProgress = 'SET_PROGRESS'
+  SetProgress = 'SET_PROGRESS',
+  SetUpdateSeek = 'SET_UPDATE_SEEK',
 }
 
 
@@ -30,4 +31,5 @@ export type Actions = {
   [ActionTypes.SetNewSong](context: ActionAugments, payload: Song): void
   [ActionTypes.SetToggleSong](context: ActionAugments): void
   [ActionTypes.SetProgress](context: ActionAugments): void
+  [ActionTypes.SetUpdateSeek](context: ActionAugments, payload: any): void
 }

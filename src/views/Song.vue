@@ -22,7 +22,10 @@
             focus:outline-none
           "
         >
-          <i class="fas fa-play"></i>
+          <i
+            class="fas"
+            :class="{ 'fa-play': !isPlaying, 'fa-pause': isPlaying }"
+          ></i>
         </button>
         <div class="z-50 text-left ml-8">
           <!-- Song Info -->
@@ -169,6 +172,7 @@ export default defineComponent({
     }
 
     const isUserLoggedIn = computed(() => store.state.isLoggedIn)
+    const isPlaying = computed(() => store.getters.isPlaying)
     const sortedComments = computed(() => {
       return comments.value.slice().sort((a, b) => {
         if (sorting.value === '1') {
@@ -185,7 +189,11 @@ export default defineComponent({
 
     const newSong = async () => {
       try {
-        await store.dispatch(ActionTypes.SetNewSong, song.value)
+        if (isPlaying.value) {
+          await store.dispatch(ActionTypes.SetToggleSong)
+        } else {
+          await store.dispatch(ActionTypes.SetNewSong, song.value)
+        }
       } catch (error: unknown) {
         if (error instanceof Error) console.log(error)
         console.log(String(error))
@@ -295,6 +303,7 @@ export default defineComponent({
       commentShowAlert,
       commentAlertVariant,
       commentAlertMessage,
+      isPlaying,
       isUserLoggedIn,
       newSong,
       song,

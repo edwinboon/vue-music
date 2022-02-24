@@ -59,6 +59,7 @@
         </div>
         <!-- Scrub Container  -->
         <span
+          @click.prevent="updateSeek"
           class="
             block
             w-full
@@ -136,6 +137,15 @@ export default defineComponent({
       }
     }
 
+    const updateSeek = async ($event: Event) => {
+      try {
+        await store.dispatch(ActionTypes.SetUpdateSeek, $event)
+      } catch (error: unknown) {
+        if (error instanceof Error) console.log(error)
+        console.log(String(error))
+      }
+    }
+
     const isPlaying = computed(() => store.getters.isPlaying)
 
     return {
@@ -145,6 +155,7 @@ export default defineComponent({
       progress,
       seek,
       toggleSong,
+      updateSeek,
     }
   },
 })
