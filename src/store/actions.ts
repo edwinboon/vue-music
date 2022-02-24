@@ -3,6 +3,7 @@ import { State } from '@/types/State'
 import { Actions, ActionTypes } from '@/types/Actions'
 import { MutationsType } from '@/types/Mutations'
 import { auth, usersCollection, } from '@/includes/firebase'
+import { Howl } from 'howler'
 
 export const actions: ActionTree<State, State> & Actions = {
   async [ActionTypes.SetRegistration]({ commit, state }, payload) {
@@ -41,5 +42,56 @@ export const actions: ActionTree<State, State> & Actions = {
     await auth.signOut()
 
     commit(MutationsType.ToggleAuth, !state.isLoggedIn)
+  },
+  async [ActionTypes.SetNewSong]({ commit, state, dispatch }, payload) {
+    if(state.song instanceof Howl) {
+      state.song.unload()
+    }
+
+    commit(MutationsType.NewSong, payload)
+    state.song.play()
+
+    // listen to events
+    state.song.on('play', () => {
+      requestAnimationFrame(() => {
+        dispatch(ActionTypes.SetProgress)
+      })
+    })
+  },
+  async [ActionTypes.SetToggleSong]({ state }) {
+    if(!state.song.playing) {
+      return
+    }
+
+    if(state.song.playing()) {
+      state.song.pause()
+    } else {
+      state.song.play()
+    }
+  },
+  async [ActionTypes.SetProgress]({ commit, state, dispatch }) {
+    commit(MutationsType.UpdatePosition, undefined)
+
+    if(state.song.playing()) {
+      requestAnimationFrame(() => {
+        dispatch(ActionTypes.SetProgress)
+      })
+    }
+  },
+  async [ActionTypes.SetUpdateSeek]({state, dispatch }, payload) {
+    if(!state.song.playing) {
+      return
+    }
+
+    const { x, width } = payload.currentTarget.getBoundingClientRect();
+    const clickX = payload.clientX - x
+    const percentage = clickX / width
+    const seconds = state.song.duration() * percentage
+
+    state.song.seek(seconds)
+
+    state.song.once('seek', () => {
+      dispatch(ActionTypes.SetProgress)
+    })
   }
 }

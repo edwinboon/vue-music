@@ -6,4 +6,7 @@ export const getters: GetterTree<State, State> & Getters = {
   authModalShow(state: State) {
     return state.authModalShow
   },
+  isPlaying(state: State) {
+    return !state.song.playing ? false : state.song.playing()
+  }
 }
