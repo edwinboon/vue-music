@@ -16,6 +16,7 @@ The stack used for this app is listed down below.
 * Firebase
 * Jest
 * Cypress
+* PWA support
 
 ## Project setup
 
